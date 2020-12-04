@@ -162,10 +162,100 @@ module.exports={
                     }
                     ).then((response)=>{
 
-                        resolve(true)
+                        resolve({status:true})
                     })
                 }
         })
+    },
+    //all products removed
+    // removeProduct:(proId)=>{
+    //     return new Promise((resolve,reject)=>{
+    //          //console.log(objectId(proId));
+    //          db.get().collection(collection.PRODUCT_COLLECTION).removeOne({_id:objectId(proId)}).then((response)=>{
+    //             //console.log(response);
+    //             console.log(response);
+    //            resolve(response)
+    //         })
+    //     })
+    //  }
+    //all products removed 
+    getTotalAmount:(userId)=>{
+        return new Promise(async(resolve,reject)=>{
+            let total=await db.get().collection(collection.CART_COLLECTION).aggregate([
+                {
+                    $match:{user:objectId(userId)}
+                },
+                {
+                    $unwind:'$products'
+                },
+                {
+                    $project:{
+                        item:'$products.item',
+                        quantity:'$products.Quantity'
+                    }
+                },
+                {
+                    $lookup:{
+                        from:collection.PRODUCT_COLLECTION,
+                        localField:'item',
+                        foreignField:'_id',
+                        as:'product'
+                    }
+                },
+                {
+                    $project:{
+                        item:1,quantity:1,product:{$arrayElemAt:['$product',0]}
+                    }
+                },
+                {  $addFields:{
+                     convertprice: {$toInt: "$product.Price"}
+                    }
+                },
+                {
+                    $group:{
+                        _id:null,
+                        total:{$sum:{$multiply:['$quantity','$convertprice']}}
+                    }
+                }
+                
+                
+            ]).toArray()
+            //console.log(total[0].total);
+            resolve(total[0].total)
+        })
+    },
+    placeOrder:(order,products,total)=>{
+        return new Promise((resolve,reject)=>{
+            console.log(order,products,total);
+            let status=order['payment-method']==='COD'?'placed':'pending'
+            let orderObj={
+                deliveryDeatils:{
+                    mobile:order.mobile,
+                    address:order.address,
+                    pincode:order.pincode
+                    
+                },
+                userId:objectId(order.userId),
+                paymentMethod:order['payment-method'],
+                products:products,
+                totalAmount:total,
+                status:status,
+                date:new Date()
+            }
+
+            db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj).then((response)=>{
+                resolve()
+                db.get().collection(collection.CART_COLLECTION).removeOne({user:objectId(order.userId)})
+            })
+        })
+    },
+    getCartProductList:(userId)=>{
+        return new Promise(async(resolve,reject)=>{
+            console.log(userId);
+            let cart=await db.get().collection(collection.CART_COLLECTION).findOne({user:objectId(userId)})
+            console.log(cart);
+            resolve(cart.products)
+
+        })
     }
-        
 }
