@@ -1,3 +1,4 @@
+
 <section>
     <div class="container">
         <table class="table mt-5">
@@ -15,6 +16,7 @@
                     
                     <td><img style="width: 70px;height:70px" src="/product-images/{{this.product._id}}.jpg" alt=""></td>
                     <td>{{this.product.Name}}</td>
+
                     <td>Rs.{{this.product.Price}}</td>
                     
                     <td>
@@ -29,7 +31,7 @@
                 </tr>
                 {{/each}}
             </tbody>
-        </table>
+        </table>    
         <hr>
        <div class="float-right">
            <h5 class="float-right mr-5">TOTAL: RS. <span id="total">{{totalValue}}</span></h5><br>

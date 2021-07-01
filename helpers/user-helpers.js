@@ -179,6 +179,57 @@ module.exports={
     //     })
     //  }
     //all products removed 
+    // getTotalAmount:(userId)=>{
+    //     return new Promise(async(resolve, reject)=>{
+    //         let total = await db.get().collection(collection.CART_COLLECTION).aggregate([
+    //             {
+    //                 $match:{user:objectId(userId)}
+    //             },
+    //             {
+    //                 $unwind:'$products'
+    //             },
+    //             {
+    //                 $project:{
+    //                     item:'$products.item',
+    //                     quantity:'$products.quantity',
+                        
+    //                 }
+    //             },
+    //             {
+    //                 $lookup:{
+    //                     from:collection.PRODUCT_COLLECTION,
+    //                     localField:'item',
+    //                     foreignField:'_id',
+    //                     as:'product'
+    //                 }
+    //             },
+    //             {
+    //                 $project:{
+    //                     item:1, 
+    //                     quantity:1,
+    //                     product:{ $arrayElemAt: ['$products',0]} 
+    //                 }
+    //             },
+    //              { $addFields: {
+    //             convertprice: {$toInt:"$products.Price" }       
+    //          }
+                
+    //         },
+    //             {   
+    //                 $group:{
+    //                     _id:null,
+    //                     total:{$sum:{$multiply:['$quantity', '$convertprice']}}
+    //                 }
+    //             },
+                
+                
+                
+    //         ]).toArray()
+    //         //console.log(total[0].total);
+    //         resolve(total[0].total);
+    //     })
+    // },
+
     getTotalAmount:(userId)=>{
         return new Promise(async(resolve,reject)=>{
             let total=await db.get().collection(collection.CART_COLLECTION).aggregate([
@@ -223,7 +274,10 @@ module.exports={
             //console.log(total[0].total);
             resolve(total[0].total)
         })
+    
     },
+
+
     placeOrder:(order,products,total)=>{
         return new Promise((resolve,reject)=>{
             console.log(order,products,total);
@@ -247,6 +301,7 @@ module.exports={
                 resolve()
                 db.get().collection(collection.CART_COLLECTION).removeOne({user:objectId(order.userId)})
             })
+            
         })
     },
     getCartProductList:(userId)=>{
@@ -257,5 +312,51 @@ module.exports={
             resolve(cart.products)
 
         })
-    }
+    },
+
+    getUserOrders:(userId)=>{
+        return new Promise(async(resolve, reject) => {
+            let orders = await db.get().collection(collection.ORDER_COLLECTION)
+            .find({userId:objectId(userId)}).toArray()
+            console.log('order:',orders);
+            resolve(orders)
+        })
+        
+    },
+
+    getOrderProducts:(productId)=>{
+        return new Promise(async(resolve, reject)=>{
+            let orderItem = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
+                {
+                    $match:{_id:objectId(productId)}
+                },
+                {
+                    $unwind:'$products'
+                },
+                {
+                    $project:{
+                        item:'$products.item',
+                        quantity:'$products.quantity'
+                    }
+                },
+                {
+                    $lookup:{
+                        from:collection.PRODUCT_COLLECTION,
+                        localField:'item',
+                        foreignField:'_id',
+                        as:'product'
+                    }
+                },
+                {
+                    $project:{
+                        item:1, quantity:1,product:{ $arrayElemAt: ['$product',0]}
+                    }
+                }
+                
+                
+            ]).toArray()
+            console.log(orderItem);
+            resolve(orderItem)
+        })
+    },
 }

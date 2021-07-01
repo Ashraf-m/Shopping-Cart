@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="container mt-5 ml-5 checkout">
-                        <h3>Total Amount : Rs.{{total}}</h3>
+                        <h3>Total Amount : Rs.{{total}} </h3>
                         <hr>
                         <div class="payment">
                             <p>Payment Method</p>
@@ -50,7 +50,7 @@
             success:(response)=>{
                 alert(response)
                 if(response.status){
-                    location.href=''
+                    location.href='/order-success'
                 }
             }
         })
