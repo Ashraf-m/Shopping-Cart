@@ -34,7 +34,7 @@
         </table>    
         <hr>
        <div class="float-right">
-           <h5 class="float-right mr-5">TOTAL: RS. <span id="total">{{totalValue}}</span></h5><br>
+           <h5 class="float-right mr-5">TOTAL: RS. <span id="total">{{totalvalue}}</span></h5><br>
            <a href="/place-order" class="btn btn-success mt-3" style="width: 100%;"><b>Place Order</b></a>
        </div>
 
@@ -66,6 +66,7 @@
                     console.log(response)
                     document.getElementById(proId).innerHTML=quantity+count
                     document.getElementById('total').innerHTML=response.total
+                   
                 }
             }
         })

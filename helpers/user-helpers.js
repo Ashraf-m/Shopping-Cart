@@ -271,7 +271,7 @@ module.exports={
                 
                 
             ]).toArray()
-            //console.log(total[0].total);
+            console.log(total[0].total);
             resolve(total[0].total)
         })
     
